@@ -3,7 +3,7 @@ import axios from 'axios';
 import io from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
 
-const socket = io('http://localhost:4000');
+const socket = io(); // 소켓 서버와 연결
 const SERVER_URL = 'http://localhost:5000'; // 파이썬 서버 URL
 
 const userImages = [
@@ -35,6 +35,7 @@ function ChatRoom() {
     });
 
     socket.on('message', (message) => {
+      console.log("New message received:", message); // 디버깅 로그 추가
       setMessages((messages) => [message, ...messages]);
       if (message.dislikes >= 30) {
         setDislikedUsers(prev => new Set(prev).add(message.uid));
@@ -83,13 +84,13 @@ function ChatRoom() {
   
       if (error) {
         console.error('Server error:', error);
-        // 사용자에게 에러 메시지를 표시할 수 있습니다.
         return;
       }
   
+      let newMessage;
       if (isProfanity) {
         console.log("Profanity detected, blocking message");
-        const warningMessage = {
+        newMessage = {
           id: uuidv4(),
           text: `${userName}의 채팅이 차단되었습니다`,
           createdAt: new Date(),
@@ -100,10 +101,9 @@ function ChatRoom() {
           dislikes: 0,
           isWarning: true
         };
-        setMessages((messages) => [warningMessage, ...messages]);
       } else {
         console.log("Message is clean, sending to chat");
-        const newMessage = {
+        newMessage = {
           id: uuidv4(),
           text: formValue,
           createdAt: new Date(),
@@ -113,12 +113,16 @@ function ChatRoom() {
           likes: 0,
           dislikes: 0
         };
-        socket.emit('message', newMessage);
       }
+
+      console.log("Emitting message:", newMessage); // 추가된 디버깅 로그
+      socket.emit('message', newMessage); // 메시지를 소켓을 통해 서버로 전송
+
+      // 메시지를 UI에 바로 반영
+      setMessages((messages) => [newMessage, ...messages]);
       setFormValue('');
     } catch (err) {
       console.error('Error in profanity check:', err.message);
-      // 사용자에게 에러 메시지를 표시할 수 있습니다.
     }
   };
 
