@@ -7,7 +7,7 @@ import traceback
 import os
 
 app = Flask(__name__)
-CORS(app, resources={r"/predict": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/predict": {"origins": "*"}})
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 model_path = os.path.join(current_dir, 'checkpoint', 'saved_model.keras')
@@ -55,4 +55,4 @@ def predict():
         return jsonify({'error': error_message}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000, host='0.0.0.0')
