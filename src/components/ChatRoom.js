@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
 
 const socket = io(); // 소켓 서버와 연결
-const SERVER_URL = 'http://localhost:5000'; // 파이썬 서버 URL
+const SERVER_URL = 'http://3.27.63.83:5000'; // 파이썬 서버 URL
 
 const userImages = [
   'https://i.pravatar.cc/150?img=2'
